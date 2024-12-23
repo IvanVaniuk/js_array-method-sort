@@ -5,24 +5,47 @@
  */
 function applyCustomSort() {
   [].__proto__.sort2 = function (compareFunction) {
-    let compFunc = compareFunction;
-
-    if (typeof compFunc !== 'function') {
-      compFunc = (a, b) => {
+    const compare =
+      compareFunction ||
+      ((a, b) => {
         return String(a) === String(b) ? 0 : String(a) > String(b) ? 1 : -1;
-      };
-    }
+      });
 
-    for (let i = 0; i < this.length - 1; i++) {
-      for (let j = 0; j < this.length - 1 - i; j++) {
-        if (compFunc(this[j], this[j + 1]) > 0) {
-          const temp = this[j];
+    const quickSort = (arr, left, right) => {
+      if (left >= right) {
+        return;
+      }
 
-          this[j] = this[j + 1];
-          this[j + 1] = temp;
+      const pivotIndex = Math.floor((left + right) / 2);
+      const pivot = arr[pivotIndex];
+
+      let i = left;
+      let j = right;
+
+      while (i <= j) {
+        while (compare(arr[i], pivot) < 0) {
+          i++;
+        }
+
+        while (compare(arr[j], pivot) > 0) {
+          j--;
+        }
+
+        if (i <= j) {
+          const temp = arr[i];
+
+          arr[i] = arr[j];
+          arr[j] = temp;
+          i++;
+          j--;
         }
       }
-    }
+
+      quickSort(arr, left, j);
+      quickSort(arr, i, right);
+    };
+
+    quickSort(this, 0, this.length - 1);
 
     return this;
   };
